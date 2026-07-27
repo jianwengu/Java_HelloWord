@@ -1,0 +1,54 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: java-app
+  namespace: default
+  labels:
+    app: java-app
+    tier: backend
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: java-app
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1        # 滚动升级时最多允许超出副本数的Pod
+      maxUnavailable: 0  # 滚动升级时最多允许不可用的Pod（保证不中断）
+  template:
+    metadata:
+      labels:
+        app: java-app
+        tier: backend
+    spec:
+      # 优雅停机等待时间（Java应用通常需要一点时间来处理完剩余请求并关闭连接池）
+      terminationGracePeriodSeconds: 60
+      containers:
+      - name: java-app
+        image: your-registry.com/your-java-app:1.0.0
+        imagePullPolicy: IfNotPresent
+        
+        # 资源配额（非常重要，防止Java应用内存溢出导致Node节点挂掉）
+        resources:
+          requests:
+            cpu: "250m"    # 0.25核
+            memory: "512Mi"
+          limits:
+            cpu: "1000m"   # 1核
+            memory: "1024Mi" # 建议和JVM的 -Xmx 配置相匹配，避免OOM Killed
+        env:
+        - name: TZ
+          value: "Asia/Shanghai" # 设置时区
+        - name: JAVA_OPTS
+          value: "-Xms512m -Xmx512m -XX:+UseG1GC -XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath=/app/logs/heapdump.hprof" # JVM参数        
+        # 端口配置
+        ports:
+        - containerPort: 80
+          name: http
+        volumeMounts:
+        - name: app-logs
+          mountPath: /app/logs
+      volumes:
+      - name: app-logs
+        emptyDir: {} # 临时目录，Pod销毁后丢失。生产环境可替换为 PVC 持久化存储
