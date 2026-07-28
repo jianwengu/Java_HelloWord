@@ -25,30 +25,29 @@ spec:
       # 优雅停机等待时间（Java应用通常需要一点时间来处理完剩余请求并关闭连接池）
       terminationGracePeriodSeconds: 60
       containers:
-      - name: java-app
-        image: registry.cn-beijing.aliyuncs.com/public_work/test-env:hello-w7-test-20260728102440
-        imagePullPolicy: IfNotPresent
-        
-        # 资源配额（非常重要，防止Java应用内存溢出导致Node节点挂掉）
-        resources:
-          requests:
-            cpu: "250m"
-            memory: "512Mi"
-          limits:
-            cpu: "1000m"   # 1核
-            memory: "1024Mi"
-        env:
-        - name: TZ
-          value: "Asia/Shanghai"
-        - name: JAVA_OPTS
-          value: "-Xms512m -Xmx512m -XX:+UseG1GC -XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath=/app/logs/heapdump.hprof"
-        # 端口配置
-        ports:
-        - containerPort: 80
-          name: http
-        volumeMounts:
-        - name: app-logs
-          mountPath: /app/logs
+        - name: java-app
+          image: registry.cn-beijing.aliyuncs.com/public_work/test-env:hello-w12-test-20260728114717
+          imagePullPolicy: IfNotPresent
+          # 资源配额（非常重要，防止Java应用内存溢出导致Node节点挂掉）
+          resources:
+            requests:
+              cpu: "250m"
+              memory: "512Mi"
+            limits:
+              cpu: "1000m" # 1核
+              memory: "1024Mi"
+          env:
+            - name: TZ
+              value: "Asia/Shanghai"
+            - name: JAVA_OPTS
+              value: "-Xms512m -Xmx512m -XX:+UseG1GC -XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath=/app/logs/heapdump.hprof"
+          # 端口配置
+          ports:
+            - containerPort: 80
+              name: http
+          volumeMounts:
+            - name: app-logs
+              mountPath: /app/logs
       volumes:
-      - name: app-logs
-        emptyDir: {}
+        - name: app-logs
+          emptyDir: {}
