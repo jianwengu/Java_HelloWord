@@ -26,7 +26,7 @@ spec:
       terminationGracePeriodSeconds: 60
       containers:
         - name: java-app
-          image: registry.cn-beijing.aliyuncs.com/public_work/test-env:hello-wd16-test-20260728140642
+          image: registry.cn-beijing.aliyuncs.com/public_work/test-env:hello-wd17-test-20260728145919
           imagePullPolicy: IfNotPresent
           # 资源配额（非常重要，防止Java应用内存溢出导致Node节点挂掉）
           resources:
